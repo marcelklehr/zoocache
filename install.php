@@ -1,10 +1,14 @@
 <?php
 namespace Zoo;
-define('ZOOCACHE_VER','1.0');
 define('ZOOCACHE_INC', dirname(__FILE__));
-include ZOOCACHE_INC.'/driver.php';
-include ZOOCACHE_INC.'/cache.php';
-include ZOOCACHE_INC.'/config.php';
-Cache::option('firstrun', true);
+include ZOOCACHE_INC.'/zoo.php';
+
 Cache::init();
+$driver = Config::get('driver');
+// Install driver
+if(Cache::$driver->install() === FALSE)
+{
+	die("Hmm, something went wrong during the installation process of the $driver driver. Please, check your $driver. driver settings in 'config.php'!");
+}
+die("Successfully installed $driver driver. Ready for caching!");
 ?>

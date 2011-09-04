@@ -4,56 +4,56 @@ namespace Zoo;
 /**
  * Enable caching?
  */
-Cache::option('caching', true);
+Config::set('caching', true);
 
 /**
  * Gzip output compression?
  */
-Cache::option('gzip', true);
+Config::set('gzip', true);
 
 /**
  * Seconds until the cached data expires
  */
-Cache::option('expire', 30);
+Config::set('expire', 300);
 
 /**
  * Storage driver to use
  */
-Cache::option('driver', 'file');
+Config::set('driver', 'file');
 
 /**
  * Enable caching of post requests?
  */
-Cache::option('post', false);
+Config::set('post', false);
 
 /**
  * List all files you don't want to be cached. You can use RegEx-like ^ and $
  * Your cache rule is checked against the whole URI: http://www.example.com/path/to/file.php?maybe=querystring
  */
-Cache::option('blacklist', array('test.php?nocache$'));
+Config::set('blacklist', array('test.php?nocache$'));
 
 /**
  * Set flags to define which variables should be used for creating the storage key
  * KEY_DOAMIN, KEY_GETVARS, KEY_POSTVARS, KEY_COOKIES
  * Default value: 0
  */
-Cache::option('keyflags', KEY_GETVARS);
+Config::set('keyflags', KEY_GETVARS);
 
 /**
  * File driver options
  */
-Cache::option('file.dir', ZOOCACHE_INC.'/tmp');
+Config::set('file.dir', ZOOCACHE_INC.'/tmp');
 
 /**
  * mySQL driver options
  */
-Cache::option('mysql.host', 'localhost');
-Cache::option('mysql.user', '');
-Cache::option('mysql.password', '');
-Cache::option('mysql.database', '');
+Config::set('mysql.host', 'localhost');
+Config::set('mysql.user', '');
+Config::set('mysql.password', '');
+Config::set('mysql.database', '');
 
 /**
  * Run in debug mode?
  */
-Cache::option('debug', true);
+Config::set('debug', true);
 ?>

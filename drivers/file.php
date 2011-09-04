@@ -6,13 +6,14 @@ class File implements Zoo\Driver
 {
 	function install()
 	{
-		if(!is_dir($dir = Zoo\Cache::option('file.dir')))
+		if(!is_dir($dir = Zoo\Config::get('file.dir')))
 			mkdir($dir);
+		return;
 	}
 	
-	function getCache($key)
+	function get($key)
 	{		
-		$file = Zoo\Cache::option('file.dir') . '/zoo.'.$key;
+		$file = Zoo\Config::get('file.dir') . '/zoo.'.$key;
 		
 		// Open file
 		if (($fp = @fopen($file, 'rb')) === FALSE)
@@ -42,17 +43,18 @@ class File implements Zoo\Driver
 		return $cache;
 	}
 	
-	function storeCache($key, $data, $timestamp, $size, $crc)
+	function store($key, $data, $timestamp, $size, $crc)
 	{
 		$cache = serialize(array('data'=>$data, 'timestamp'=>$timestamp, 'size'=>$size, 'crc'=>$crc));
 		
-		$file = Zoo\Cache::option('file.dir') . '/zoo.'.$key;
-		unlink($file);
+		$file = Zoo\Config::get('file.dir') . '/zoo.'.$key;
+		if(file_exists($file))
+			unlink($file);
 		
 		$return = FALSE;
 		// Lock file, ignore warnings as we might be creating this file
-		$fpt = fopen($file, 'rb');
-		flock($fpt, LOCK_EX);
+		$fpt = @fopen($file, 'rb');
+		@flock($fpt, LOCK_EX);
 
 		// php.net suggested I should use wb to make it work under Windows
 		$fp=fopen($file, 'wb+');
@@ -69,11 +71,47 @@ class File implements Zoo\Driver
 		}
 
 		// Release lock
-		flock($fpt, LOCK_UN);
-		fclose($fpt);
+		@flock($fpt, LOCK_UN);
+		@fclose($fpt);
 		
 		// Return
 		return $return;
+	}
+	
+	function resetCache()
+	{
+		self::emptyDir( Zoo\Config::get('file.dir') );
+	}
+	
+	static function emptyDir($directory)
+	{
+		if(substr($directory,-1) == "/") {
+			$directory = substr($directory,0,-1);
+		}
+
+		if(!file_exists($directory) || !is_dir($directory)) {
+			return false;
+		} elseif(!is_readable($directory)) {
+			return false;
+		} else {
+			$directoryHandle = opendir($directory);
+		   
+			while ($contents = readdir($directoryHandle)) {
+				if($contents != '.' && $contents != '..') {
+					$path = $directory . "/" . $contents;
+				   
+					if(is_dir($path)) {
+						deleteAll($path);
+					} else {
+						unlink($path);
+					}
+				}
+			}
+		   
+			closedir($directoryHandle);
+		   
+			return true;
+		}
 	}
 }
 

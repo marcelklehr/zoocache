@@ -4,6 +4,14 @@
  * Just include the bootstrap.php file in the /zoocache directory
  */
 include 'bootstrap.php';
+
+/**
+ * Let's do something really heavy here, so we can see the difference
+ */
+for($i=0;$i<9999999;$i++)
+{
+	$ii = time()/($i+1);
+}
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 	"http://www.w3.org/TR/html4/loose.dtd">
@@ -25,8 +33,8 @@ h1 span{color:#050}
 <blockquote><pre>UNIX timestamp: <?php print time(); ?></pre></blockquote>
 <p>If everything is working correctly now, you should see the same digits above after reloading the page. That means it has been cached!<br />
 Also try <a href="<?php print $_SERVER['PHP_SELF']; ?>?nocache">?nocache</a>, which is on the caching blacklist. Therefore, when watching that page, you should see the digits change on reload.</p>
-<?php if(Zoo\Cache::option('debug')){ ?><p><strong>Zoocache is running in debug mode!</strong><br/>It's recommended to turn off debug mode in a production environment, since debug messages can by read by everybody in the HTTP headers.</p><?php } ?>
+<?php if(Zoo\Config::get('debug')){ ?><p><strong>Zoocache is running in debug mode!</strong><br/>It's recommended to turn off debug mode in a production environment, since debug messages can by read by everybody in the HTTP headers.</p><?php } ?>
 <p></p>
-<p><em>You are running Zoocache/<?php print ZOOCACHE_VER; ?>; driver:<?php print Zoo\Cache::option('driver'); ?>; gzip:<?php print (Zoo\Cache::option('gzip')) ? 'on' : 'off'; ?>; debug mode:<?php print (Zoo\Cache::option('debug')) ? 'on' : 'off'; ?></em></span></p>
+<p><em>You are running Zoocache/<?php print ZOOCACHE_VER; ?>; driver:<?php print Zoo\Config::get('driver'); ?>; gzip:<?php print (Zoo\Config::get('gzip')) ? 'on' : 'off'; ?>; debug mode:<?php print (Zoo\Config::get('debug')) ? 'on' : 'off'; ?></em></span></p>
 </body>
 </html>
