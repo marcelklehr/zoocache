@@ -46,9 +46,11 @@ class Engine
 		// Construct engine
 		$engine = new Engine();
 		
-		// Nocache flag?
-		if(@$_SERVER['HTTP_REFERER'] === $engine->cache->key)
-			return;
+		// Define gzip ob_handler
+		if(Config::get('gzip'))
+		{
+			ob_start('ob_gzhandler');
+		}
 		
 		// caching on?
 		if(!Config::get('caching'))
@@ -62,22 +64,33 @@ class Engine
 			$engine->crc = $c['crc'];
 			
 			// valid?
-			if(time() > $c['timestamp'] + Config::get('expire'))
+			if(time() < $c['timestamp'] + Config::get('expire'))
 			{
-				Cache::log('Stored cache is invalid');
-				
-				// Delegate to monkey but load invalid cache once more
-				$engine->cache->recache();
+				// flush
+				print $engine->flush();
+				exit;
 			}
-			
-			// flush
-			print $engine->flush();
-			exit;
-		}else{
-		  /* No Cache found */
-			// Delegate to monkey and let the page load normally
-			$engine->cache->recache();
 		}
+	  /* No or invalid Cache found */
+		Cache::log('No or invalid Cache found');
+				
+		// start output buffer and define callback
+		ob_start(array($engine, 'recache'));
+		ob_implicit_flush(0);
+	}
+	
+	function recache($chunk) {
+	  /* process the buffered data */
+		// Don't write if connection aborted or caching is disabled
+		if(!connection_aborted() && Config::get('caching'))
+		{
+			$this->cache->storeCache($chunk);
+		}
+		
+		$this->size = strlen($chunk);
+		$this->crc = crc32($chunk);
+		$this->data = $chunk;
+		return $this->flush();
 	}
 	
 	/**
@@ -88,7 +101,7 @@ class Engine
 		Cache::log('Flushing');
 		
 		// Build ETag
-		$my_ETag = '"z' . $this->crc . $this->size . '"';
+		$my_ETag = '"z' . $this->crc .'-'. $this->size . '"';
 		header('ETag: '.$my_ETag);
 		
 		$received_ETag = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? stripslashes($_SERVER['HTTP_IF_NONE_MATCH']) : '';
@@ -104,49 +117,12 @@ class Engine
 			}else{
 				header('HTTP/1.0 304');
 			}
-			return;
+			return '';
 			
 		}else{
 		  /* Something modified - return cached data */
-			if(!Config::get('gzip'))
-			{
-			  /* gzip off */
-				// Just output cache data
-				return $this->data;
-				
-			}else{
-			  /* gzip on */
-				if(($encoding = self::getBrowserEncoding()) !== FALSE)
-				{
-				  /* Client allows gzip */
-					header('Content-Encoding: '.$encoding);
-					$gzip = substr($this->data, 0, $this->size);
-					$data = "\x1f\x8b\x08\x00\x00\x00\x00\x00" . $gzip;
-				}else{
-				  /* Client doesn't allow gzip */
-					// Uncompress cached data
-					$data = gzuncompress($this->data);
-				}
-				return $data;
-			}
+			return $this->data;
 		}
-	}
-	
-	/**
-	 * Detects, whether the bowser accepts gzip
-	 */
-	static function getBrowserEncoding()
-	{
-		if (headers_sent() || connection_aborted())
-			return false;
-			
-		if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'],'x-gzip') !== false)
-			return 'x-gzip';
-		
-		if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'],'gzip') !== false)
-			return 'gzip';
-		
-		return false;
 	}
 }
 ?>

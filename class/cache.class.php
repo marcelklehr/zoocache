@@ -40,7 +40,8 @@ class Cache
 		$this->url = $url;
 		if($url === null)
 		{
-			$this->url = 'http://'.$_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME'];
+			$this->url = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
+			$this->url .= $_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME'];
 			$this->url.= (!empty($_SERVER['QUERY_STRING']))
 							? '?'.$_SERVER['QUERY_STRING']
 							: '';
@@ -78,9 +79,8 @@ class Cache
 	 */
 	function storeCache($content)
 	{
-		$c['data'] = (Config::get('gzip'))
-							? gzcompress($content)
-							: $content;
+		self::log('Storing new cache');
+		$c['data'] = $content;
 		$c['timestamp'] = time();
 		$c['size'] = strlen($content);
 		$c['crc'] = crc32($content);
@@ -89,34 +89,18 @@ class Cache
 	}
 	
 	/**
-	 * Reset a snapshot stored under $key
+	 * Reset the snapshot stored under $key
 	 */
-	public function recache()
+	public function resetCache()
 	{
-		self::log('Calling monkey for recaching');
-		
-		$fp = fsockopen($_SERVER['SERVER_NAME'], 80);
-		if (!$fp) {
-			return FALSE;
-		}
-		
-		$monkey = dirname($_SERVER['SCRIPT_NAME']).'/monkey.php?recache';
-		$post = '{"resource":"'.$this->url.'", "key":"'.$this->key.'"}';
-		$http = "GET ".$monkey." HTTP/1.0\r\n"
-				."Content-Type: application/json\r\n"
-				."Content-Length: ".strlen($post)."\r\n"
-				."Connection: Close\r\n\r\n"
-				.$post;
-		
-		fwrite($fp, $http);
-		//print fread($fp, 1000);
-		fclose($fp);
+		// Store nothing for the current key, but make shure it will be determined as invalid
+		return self::$driver->store($this->key, '', 42, 0, crc32(''));
 	}
 	
 	/**
-	 * Deletes the whole cache, and return FALSE on error.
+	 * Deletes the whole cache, and returns FALSE on error.
 	 */
-	public function resetCache()
+	public function reset()
 	{
 		return (self::$driver->resetCache() !== FALSE);
 	}
@@ -141,22 +125,22 @@ class Cache
 		$key = $url['path'];
 		
 		// check DOMAIN flag
-		if(KEY_DOMAIN && $flags == KEY_DOMAIN)
+		if((KEY_DOMAIN & $flags) == KEY_DOMAIN)
 		{
-			$key = $url['domain'].$key;
+			$key = $url['host'].$key;
 		}
 		
 		// check GETVARS flag
-		if(KEY_GETVARS && $flags == KEY_GETVARS)
+		if((KEY_GETVARS & $flags) == KEY_GETVARS)
 		{
 			$key .= '?';
 			$key .= (isset($url['query'])) ? $url['query'] : '';
 		}
 		
 		// check SCHEME flag
-		if(KEY_SCHEME && $flags == KEY_SCHEME)
+		if((KEY_SCHEME & $flags) == KEY_SCHEME)
 		{
-			$key = $url['scheme'].$key;
+			$key = $url['scheme'].'://'.$key;
 		}
 		
 		return md5($key);

@@ -34,7 +34,8 @@ Config::set('blacklist', array('~test\.php\?nocache$~'));
 
 /**
  * Set flags to define which variables should be used for creating the storage key
- * KEY_DOAMIN, KEY_GETVARS, KEY_POSTVARS, KEY_COOKIES
+ * or pass a callback to generate the key out of the URL passed to it.
+ * possible flags: KEY_DOAMIN, KEY_GETVARS, KEY_POSTVARS, KEY_COOKIES, KEY_SCHEME
  * Default value: 0
  */
 Config::set('keygeneration', KEY_GETVARS);
