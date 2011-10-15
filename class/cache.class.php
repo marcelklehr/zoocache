@@ -6,6 +6,7 @@ namespace Zoo;
  */
 define('KEY_DOMAIN', 8);  //1000
 define('KEY_GETVARS', 4); //0100
+define('KEY_SCHEME', 2); //0010
 
 class Cache
 {
@@ -27,7 +28,7 @@ class Cache
 			return new Cache($url, self::$driver);
 		}catch(Exception $e)
 		{
-			throw new DomainException('Registered Zoocache driver must be an implementation of interface Zoo\Driver.', 0,$e);
+			throw new DomainException('Registered Zoocache driver must be an implementation of interface Zoo\Driver.', 0, $e);
 		}
 	}
 	
@@ -123,12 +124,17 @@ class Cache
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	
 	/**
-	 * Creates storage key with the options and stores it in $this->key
+	 * Creates storage key with the options
 	 */
 	static function createKey($url)
 	{
 	  /* Generate Script identification string */
-		$flags = Config::get('keyflags');
+		$flags = Config::get('keygeneration');
+		
+		// call user-defined function
+		if(is_callable($flags)) {
+			return md5(flags($url));
+		}
 		
 		$url = parse_url($url);
 		
@@ -137,13 +143,20 @@ class Cache
 		// check DOMAIN flag
 		if(KEY_DOMAIN && $flags == KEY_DOMAIN)
 		{
-			$key = $url['scheme'].$url['domain'].$url['path'];
+			$key = $url['domain'].$key;
 		}
 		
 		// check GETVARS flag
 		if(KEY_GETVARS && $flags == KEY_GETVARS)
 		{
-			@$key .= '?'.$url['query'];
+			$key .= '?';
+			$key .= (isset($url['query'])) ? $url['query'] : '';
+		}
+		
+		// check SCHEME flag
+		if(KEY_SCHEME && $flags == KEY_SCHEME)
+		{
+			$key = $url['scheme'].$key;
 		}
 		
 		return md5($key);
@@ -158,8 +171,8 @@ class Cache
 		if(Config::get('debug'))
 		{
 			header("X-Zoocache-Log-$c: ".$string, true);
+			$c++;
 		}
-		$c++;
 	}
 }
 ?>

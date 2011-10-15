@@ -10,7 +10,7 @@ class Config
 		'driver' => 'file',
 		'post' => FALSE,
 		'blacklist' => array(),
-		'keyflags' => 0,
+		'keygeneration' => 0,
 		'debug' => FALSE,
 		'firstrun' => FALSE
 	);

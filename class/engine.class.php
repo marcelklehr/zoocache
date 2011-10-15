@@ -25,15 +25,13 @@ class Engine
 			Config::set('caching', FALSE);
 		
 		// Force caching off when blacklist matches
-		$location = '^http://'.$_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME'];
-		if(KEY_GETVARS && Config::get('keyflags') == KEY_GETVARS && !empty($_SERVER['QUERY_STRING']))
-			$location .= '?'.$_SERVER['QUERY_STRING']; // add qery string, when getvars flag set
-		$location .= '$';
+		$location = $this->cache->url;
 		$list = Config::get('blacklist');
 		foreach($list as $entry)
 		{
-			if(FALSE === stripos($location, $entry))
+			if(FALSE == preg_match($entry, $location)) // FALSE: Error; 0: no matches;
 				continue;
+			
 			Cache::log($location.' Matched blacklist entry: "'.$entry.'" Don\'t cache');
 			Config::set('caching', FALSE);
 			break;

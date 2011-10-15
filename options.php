@@ -27,17 +27,17 @@ Config::set('driver', 'file');
 Config::set('post', false);
 
 /**
- * List all files you don't want to be cached. You can use RegEx-like ^ and $
+ * List all files you don't want to be cached using Reguar Expressions.
  * Your cache rule is checked against the whole URI: http://www.example.com/path/to/file.php?maybe=querystring
  */
-Config::set('blacklist', array('test.php?nocache$'));
+Config::set('blacklist', array('~test\.php\?nocache$~'));
 
 /**
  * Set flags to define which variables should be used for creating the storage key
  * KEY_DOAMIN, KEY_GETVARS, KEY_POSTVARS, KEY_COOKIES
  * Default value: 0
  */
-Config::set('keyflags', KEY_GETVARS);
+Config::set('keygeneration', KEY_GETVARS);
 
 /**
  * File driver options

@@ -33,7 +33,7 @@ h1 span{color:#050}
 <blockquote><pre>UNIX timestamp: <?php print time(); ?></pre></blockquote>
 <p>If everything is working correctly now, you should see the same digits above after reloading the page. That means it has been cached!<br />
 Also try <a href="<?php print $_SERVER['PHP_SELF']; ?>?nocache">?nocache</a>, which is on the caching blacklist. Therefore, when watching that page, you should see the digits change on reload.</p>
-<?php if(Zoo\Config::get('debug')){ ?><p><strong>Zoocache is running in debug mode!</strong><br/>It's recommended to turn off debug mode in a production environment, since debug messages can by read by everybody in the HTTP headers.</p><?php } ?>
+<?php if(Zoo\Config::get('debug')){ ?><p><strong>Zoocache is running in debug mode!</strong><br/>It's recommended to turn off debug mode in a production environment, since debug messages can be read by everybody in the HTTP headers.</p><?php } ?>
 <p></p>
 <p><em>You are running Zoocache/<?php print ZOOCACHE_VER; ?>; driver:<?php print Zoo\Config::get('driver'); ?>; gzip:<?php print (Zoo\Config::get('gzip')) ? 'on' : 'off'; ?>; debug mode:<?php print (Zoo\Config::get('debug')) ? 'on' : 'off'; ?></em></span></p>
 </body>
