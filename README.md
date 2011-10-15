@@ -17,7 +17,8 @@ Zoocache is the intelligent output caching tool you wished to have ever since fo
 5. Include the `bootstrap.php` file at the **top** of all files you want to cache. Any output above this include statement may lead to unforeseen results! Alternatively you can also add an auto_prepend directive in your `.htaccess` file: `php_value auto_prepend_file /path/to/bootstrap.php`.
 
 ## API Integration ##
-If you want to integrate Zoocache into your application, just follow these steps:  
+If you want to integrate Zoocache into your application, just follow these steps:
+
 1. Load the Zoocache API with `include '/path/to/zoocache/api.php';`  
 2. To init the API, run `$zooapi = Zoo\Cache::init($url);` passing the URL of the page you want to access.
 
