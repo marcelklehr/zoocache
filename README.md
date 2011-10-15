@@ -18,7 +18,7 @@ Zoocache is the intelligent output caching tool you wished to have ever since fo
 
 ## API Integration ##
 If you want to integrate Zoocache into your application, just follow these steps:
-1. Load the Zoocache API with `include '/path/to/zoocache/zoo.php';`
+1. Load the Zoocache API with `include '/path/to/zoocache/api.php';`
 2. To init the API, run `$zooapi = Zoo\Cache::init($url);` passing the URL of the page you want to access.
 Now you can poke around with the cache entry of the passed URL. Here's a list of what you can do with it:
 * You can retrieve the current contents of the cache by invoking `$zooapi->getCache();`.
