@@ -11,16 +11,18 @@ Zoocache is the intelligent output caching tool you wished to have ever since fo
 
 ## Set-up in 5 easy steps ##
 1. Download the latest version [here](http://github.com/marcelklehr/zoocache/tags) and copy the `/zoocache` folder into your project's directory.  
-2. Alter the options (located in `/zoocache/options.php`) to your wishes and choose a caching driver.
+2. Alter the options (located in `/zoocache/options.php`) to your wishes and choose a caching driver.  
 3. Now, open `install.php` in your browser. You should see a short message, which states that the chosen driver was installed successfully. If not, check your driver settings.  
 4. When everything is fine so far, load `test.php` with your browser to check whether zoocache is working.
 5. Include the `bootstrap.php` file at the **top** of all files you want to cache. Any output above this include statement may lead to unforeseen results! Alternatively you can also add an auto_prepend directive in your `.htaccess` file: `php_value auto_prepend_file /path/to/bootstrap.php`.
 
 ## API Integration ##
 If you want to integrate Zoocache into your application, just follow these steps:  
-1. Load the Zoocache API with `include '/path/to/zoocache/api.php';`
+1. Load the Zoocache API with `include '/path/to/zoocache/api.php';`  
 2. To init the API, run `$zooapi = Zoo\Cache::init($url);` passing the URL of the page you want to access.
-Now you can poke around with the cache entry of the passed URL. Here's a list of what you can do with it:  
+
+Now you can poke around with the cache entry of the passed URL. Here's a list of what you can do with it:
+
 * You can retrieve the current contents of the cache by invoking `$zooapi->getCache();`.
 * You can replace and insert contents by invoking `$zooapi->storeCache($new_contents);` passing the new contents as a string.
 * You can force Zoocache to recache this particular cache on the next request by invoking `$zooapi->resetCache();`.
