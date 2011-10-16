@@ -8,7 +8,6 @@ class Config
 		'gzip' => TRUE,
 		'expire' => 600,
 		'driver' => 'file',
-		'post' => FALSE,
 		'blacklist' => array(),
 		'keygeneration' => 0,
 		'debug' => FALSE,

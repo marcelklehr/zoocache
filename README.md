@@ -39,4 +39,4 @@ Now you can poke around with the cache entry of the passed URL. Here's a list of
 
 ## See also ##
 * Submit any bug or suggestion to the [Issue Tracker](http://github.com/marcelklehr/zoocache/issues)
-* Download the latest version [here](https://github.com/marcelklehr/zoocache/downloads)
+* Download the latest version [here](https://github.com/marcelklehr/zoocache/tags)
