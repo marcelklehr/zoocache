@@ -21,14 +21,14 @@ class Cache
 	public static function init($url=null)
 	{
 		// Load driver
-		include ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php';
+		if(!isset(self::$driver)) include ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php';
 		
 		try
 		{
 			return new Cache($url, self::$driver);
-		}catch(Exception $e)
+		}catch(\Exception $e)
 		{
-			throw new DomainException('Registered Zoocache driver must be an implementation of interface Zoo\Driver.', 0, $e);
+			throw new Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.', 0, $e);
 		}
 	}
 	
