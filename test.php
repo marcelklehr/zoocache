@@ -6,7 +6,7 @@
 include 'bootstrap.php';
 
 /**
- * Let's do something really heavy here, so we can see the difference
+ * Let's do something that takes really long, so we can see the difference
  */
 sleep(6);
 ?>
