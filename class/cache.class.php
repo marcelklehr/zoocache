@@ -24,8 +24,7 @@ class Cache
         if(!file_exists($driver = ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php')) throw new Exception('Zoocache driver not found (should be in "drivers/'.Config::get('driver').'.php")');
 		if(!isset(self::$driver)) include $driver;
 		
-		if(!(self::$driver instanceof Zoo\Driver))
-			throw new Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.');
+		if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.');
         return new Cache($url);
 	}
 	

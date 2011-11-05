@@ -1,5 +1,9 @@
 <?php
 namespace Zoo;
-define('ZOOCACHE_INC', dirname(__FILE__));
-include ZOOCACHE_INC.'/zoo.php';
+// already initiated
+if(!defined('ZOOCACHE_INC'))
+{
+    define('ZOOCACHE_INC', dirname(__FILE__));
+    include ZOOCACHE_INC.'/zoo.php';
+}
 ?>

@@ -8,7 +8,7 @@ It is freely licensed under the terms of the **GNU General Public License**.
 
 ## Features ##
 + Different storage drivers (currently file system & MySQL)
-+ Easily extendable through Plugins (e.g. GZip compression)
++ Easily extendable through Plugins (e.g. GZip compression, HTML-minimization)
 + Caching blacklist (RegEx)
 + Various options for storage key generation
 + API to retrieve or reset the cache natively in your application

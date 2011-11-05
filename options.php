@@ -19,6 +19,7 @@ Config::set('driver', 'file');
 
 /**
  * Enable plugins
+ * Available out of the box: gzip, minimize
  */
 Config::set('plugins', array(
     'gzip'
