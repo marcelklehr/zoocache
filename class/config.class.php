@@ -5,8 +5,8 @@ class Config
 {
 	private static $directives = array(
 		'caching' => TRUE,
-		'gzip' => TRUE,
 		'expire' => 600,
+        'plugins' => array(),
 		'driver' => 'file',
 		'blacklist' => array(),
 		'keygeneration' => 0,

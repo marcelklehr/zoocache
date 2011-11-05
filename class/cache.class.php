@@ -6,7 +6,7 @@ namespace Zoo;
  */
 define('KEY_DOMAIN', 8);  //1000
 define('KEY_GETVARS', 4); //0100
-define('KEY_SCHEME', 2); //0010
+define('KEY_SCHEME', 2);  //0010
 
 class Cache
 {
@@ -21,21 +21,18 @@ class Cache
 	public static function init($url=null)
 	{
 		// Load driver
-		if(!isset(self::$driver)) include ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php';
+        if(!file_exists($driver = ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php')) throw new Exception('Zoocache driver not found (should be in "drivers/'.Config::get('driver').'.php")');
+		if(!isset(self::$driver)) include $driver;
 		
-		try
-		{
-			return new Cache($url, self::$driver);
-		}catch(\Exception $e)
-		{
-			throw new Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.', 0, $e);
-		}
+		if(!(self::$driver instanceof Zoo\Driver))
+			throw new Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.');
+        return new Cache($url);
 	}
 	
 	/**
 	 * Construct entity properties
 	 */
-	private function __construct($url=null, Driver $d)
+	private function __construct($url=null)
 	{
 		$this->url = $url;
 		if($url === null)

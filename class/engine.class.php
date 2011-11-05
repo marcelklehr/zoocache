@@ -13,15 +13,12 @@ class Engine
 	public function __construct()
 	{
 		header('X-Cache: Zoocache/'.ZOOCACHE_VER);
+        Cache::log('Plugins: '.json_encode(Config::get('plugins')));
 		
 		$this->cache = Cache::init();
 		
-		// Force gzip off if gzcompress does not exist
-		if(!function_exists('gzcompress'))
-			Config::set('gzip', FALSE);
-		
-		// Force caching off when POST occured and you don't want it cached
-		if (!Config::get('post') AND count($_POST) > 0)
+		// Force caching off when POST occured
+		if (count($_POST) > 0)
 			Config::set('caching', FALSE);
 		
 		// Force caching off when blacklist matches
@@ -46,11 +43,8 @@ class Engine
 		// Construct engine
 		$engine = new Engine();
 		
-		// Define gzip ob_handler
-		if(Config::get('gzip'))
-		{
-			ob_start('ob_gzhandler');
-		}
+        //load plugins
+		$engine->loadPlugins();
 		
 		// caching on?
 		if(!Config::get('caching'))
@@ -124,5 +118,15 @@ class Engine
 			return $this->data;
 		}
 	}
+    
+    function loadPlugins()
+    {
+        $plugins = Config::get('plugins');
+        foreach($plugins as $plugin)
+        {
+            if(!file_exists($path = ZOOCACHE_INC. '/plugins/' . $plugin . '.php')) throw new Exception('Zoocache plugin not found (should be in "plugins/'.$plugin.'.php")');
+            include $path;
+        }
+    }
 }
 ?>

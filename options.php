@@ -6,10 +6,6 @@ namespace Zoo;
  */
 Config::set('caching', true);
 
-/**
- * Enable gzip output compression?
- */
-Config::set('gzip', true);
 
 /**
  * Seconds until the cached data expires
@@ -20,6 +16,13 @@ Config::set('expire', 300);
  * Storage driver to use
  */
 Config::set('driver', 'file');
+
+/**
+ * Enable plugins
+ */
+Config::set('plugins', array(
+    'gzip'
+));
 
 /**
  * List all files you don't want to be cached using Reguar Expressions.
