@@ -24,11 +24,12 @@ class Config
 {
 	private static $directives = array(
 		'caching' => TRUE,
-		'expire' => 600,
+		'expire' => 300,
         'plugins' => array(),
+        'gzip' => TRUE,
 		'driver' => 'file',
 		'blacklist' => array(),
-		'keygeneration' => 0,
+		'keygenerator' => 0,
 		'debug' => FALSE,
 		'firstrun' => FALSE
 	);
@@ -41,9 +42,7 @@ class Config
 	
 	public static function get($directive)
 	{
-		if(!isset(self::$directives[$directive]))
-			return null;
-		return self::$directives[$directive];
+		return (isset(self::$directives[$directive]))? self::$directives[$directive] : null;
 	}
 }
 ?>

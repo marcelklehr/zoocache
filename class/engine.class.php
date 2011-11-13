@@ -61,40 +61,46 @@ class Engine
 	{
 		// Construct engine
 		$engine = new Engine();
-		
-        //load plugins
-		$engine->loadPlugins();
+        
+        // gzip compression?
+        if(Config::get('gzip') === TRUE)
+            ob_start('ob_gzhandler');
 		
 		// caching on?
 		if(!Config::get('caching'))
-			return;
+            return;
+        
+        if(($c = $engine->cache->getCache()) !== FALSE)
+        {
+          /* Found Cache */
+            $engine->data = $c['data'];
+            $engine->size = $c['size'];
+            $engine->crc = $c['crc'];
+            
+            // valid?
+            if(time() < $c['timestamp'] + Config::get('expire'))
+            {
+                // flush
+                print $engine->flush();
+                exit;
+            }
+        }
+        Cache::log('Cache invalid');
 		
-		if(($c = $engine->cache->getCache()) !== FALSE)
-		{
-		  /* Found Cache */
-			$engine->data = $c['data'];
-			$engine->size = $c['size'];
-			$engine->crc = $c['crc'];
-			
-			// valid?
-			if(time() < $c['timestamp'] + Config::get('expire'))
-			{
-				// flush
-				print $engine->flush();
-				exit;
-			}
-		}
-	  /* No or invalid Cache found */
-		Cache::log('No or invalid Cache found');
-				
 		// start output buffer and define callback
 		ob_start(array($engine, 'recache'));
 		ob_implicit_flush(0);
 	}
 	
-	function recache($chunk) {
-	  /* process the buffered data */
-		// Don't write if connection aborted or caching is disabled
+    /**
+     * Process the buffered data
+     */
+	function recache($chunk)
+    {
+        // Apply filters
+        $chunk = Cache::filter($chunk);
+        
+		// Store cache
 		if(!connection_aborted() && Config::get('caching'))
 		{
 			$this->cache->storeCache($chunk);
@@ -133,19 +139,9 @@ class Engine
 			return '';
 			
 		}else{
-		  /* Something modified - return cached data */
+            // Something modified - return cached data
 			return $this->data;
 		}
 	}
-    
-    function loadPlugins()
-    {
-        $plugins = Config::get('plugins');
-        foreach($plugins as $plugin)
-        {
-            if(!file_exists($path = ZOOCACHE_INC. '/plugins/' . $plugin . '.php')) throw new Exception('Zoocache plugin not found (should be in "plugins/'.$plugin.'.php")');
-            include $path;
-        }
-    }
 }
 ?>

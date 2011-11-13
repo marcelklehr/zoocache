@@ -18,20 +18,19 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-function sanitize_output($buffer)
-{
+namespace Zoo;
+Cache::applyFilter( function($buffer) {
     $search = array(
         '/\>[^\S ]+/s', //strip whitespaces after tags, except space
         '/[^\S ]+\</s', //strip whitespaces before tags, except space
-        '/(\s)+/s'  // shorten multiple whitespace sequences
-        );
+        '/(\s)+/s'      // shorten multiple whitespace sequences
+    );
     $replace = array(
         '>',
         '<',
         '\\1'
-        );
+    );
   $buffer = preg_replace($search, $replace, $buffer);
-    return $buffer;
-}
-ob_start("sanitize_output");
+  return $buffer;
+});
 ?>

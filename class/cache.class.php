@@ -33,6 +33,7 @@ class Cache
 	public $url;
 	
 	public static $driver;
+	public static $filters;
 	
 	/**
 	 * Init Cache - load driver
@@ -40,8 +41,25 @@ class Cache
 	public static function init($url=null)
 	{
 		// Load driver
-        if(!file_exists($driver = ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php')) throw new Exception('Zoocache driver not found (should be in "drivers/'.Config::get('driver').'.php")');
-		if(!isset(self::$driver)) include $driver;
+        if(!isset(self::$driver))
+        {
+            $driver = ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php';
+            if(!file_exists($driver)) throw new Exception('Zoocache driver not found (should be in "drivers/'.Config::get('driver').'.php")');
+            include $driver;
+        }
+        
+        // Load plugins
+        if(!isset(self::$filters))
+        {
+            self::$filters = array();
+            $plugins = Config::get('plugins');
+            foreach($plugins as $plugin)
+            {
+                $path = ZOOCACHE_INC. '/plugins/' . $plugin . '.php';
+                if(!file_exists($path)) throw new Exception('Zoocache plugin not found (should be in "plugins/'.$plugin.'.php")');
+                include $path;
+            }
+        }
 		
 		if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.');
         return new Cache($url);
@@ -121,6 +139,29 @@ class Cache
 	}
 	
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    
+    /**
+	 * Registers a filter
+	 */
+	static function applyFilter($func)
+	{
+		if(!is_callable($func)) return false;
+        self::$filters[] = $func;
+	}
+    
+    
+    /**
+	 * Applies all registered output filters
+	 */
+    static function filter($buffer)
+    {
+        foreach(self::$filters as $filter)
+        {
+            $b = $filter($buffer);
+            if($b !== FALSE) $buffer = $b;
+        }
+        return $buffer;
+    }
 	
 	/**
 	 * Creates storage key with the options
@@ -128,7 +169,7 @@ class Cache
 	static function createKey($url)
 	{
 	  /* Generate Script identification string */
-		$flags = Config::get('keygeneration');
+		$flags = Config::get('keygenerator');
 		
 		// call user-defined function
 		if(is_callable($flags)) {

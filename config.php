@@ -19,17 +19,25 @@ Config::set('driver', 'file');
 
 /**
  * Enable plugins
- * Available out of the box: gzip, minimize
+ * Available out of the box: htmlmin
  */
 Config::set('plugins', array(
-    'gzip'
+    'htmlmin'
 ));
 
 /**
- * List all files you don't want to be cached using Reguar Expressions.
- * Your cache rule is checked against the whole URI: http://www.example.com/path/to/file.php?maybe=querystring
+ * Set to true, if you want your output to be gzipped
  */
-Config::set('blacklist', array('~test\.php\?nocache$~'));
+Config::set('gzip', true);
+
+/**
+ * List all files you don't want to be cached using Reguar Expressions.
+ * Your cache rule is checked against the whole ugly URL, after eventual rewrites: http://www.example.com/path/to/file.php?maybe=querystring
+ * (NOT against: http://www.example.com/my/very/beautiful/uniform_resource_locator/)
+ */
+Config::set('blacklist', array(
+    '~test\.php\?nocache$~'
+));
 
 /**
  * Set flags to define which variables should be used for creating the storage key.
@@ -37,7 +45,7 @@ Config::set('blacklist', array('~test\.php\?nocache$~'));
  * possible flags: KEY_SCHEME, KEY_DOAMIN, KEY_GETVARS
  * Default value: 0
  */
-Config::set('keygeneration', KEY_GETVARS);
+Config::set('keygenerator', KEY_GETVARS);
 
 /**
  * File driver options
