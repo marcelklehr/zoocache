@@ -23,15 +23,15 @@ Freely licensed under the terms of the **GNU General Public License**.
 
 ## API Integration ##
 The Zoocache API is a simple programming interface to manipulate the cached contents in another application.
-Find out more about the Zoocache API in the [wiki](http://github.com/marcelklehr/zoocache/wiki/API)
+Find out more about the Zoocache API in the [wiki](http://github.com/marcelklehr/zoocache/wiki/API).
 
 ## Drivers ##
-In Zoocache a driver abstracts the access to a storage medium. The MySQL driver, for example, enables Zoocache to store the cache data in a MySQL database.  
+In Zoocache a driver abstracts the access to a storage medium. The MySQL driver, for example, enables Zoocache to store the cache data in a MySQL database.
 If the storage system you are using isn't implemented, see the [wiki](http://github.com/marcelklehr/zoocache/wiki/Drivers) on how to easily build one yourself.
 
 ## Plugins ##
-Plugins in Zoocache apply filters to the cached data. For example, the HTML minifier plugin `htmlmin` strips out all unnecessary whitespaces from the cached document.  
-Find out more about plugins in the [wiki](http://github.com/marcelklehr/zoocache/wiki/Plugins)
+Plugins in Zoocache apply filters to the cached data. For example, the HTML minifier plugin `htmlmin` strips out all unnecessary whitespaces from the cached document.
+Find out more about plugins in the [wiki](http://github.com/marcelklehr/zoocache/wiki/Plugins).
 
 ## Good to know ##
 * If your browser can't veiw the page and reports an encoding error, there's probably a PHP error messing up the gzip encoding. Turning off `gzip` compression in the config file should enable you to see the error.
