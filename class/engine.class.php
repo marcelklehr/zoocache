@@ -70,7 +70,7 @@ class Engine
 		if(!Config::get('caching'))
             return;
         
-        if(($c = $engine->cache->getCache()) !== FALSE)
+        if(($c = $engine->cache->get()) !== FALSE)
         {
           /* Found Cache */
             $engine->data = $c['data'];
@@ -103,7 +103,7 @@ class Engine
 		// Store cache
 		if(!connection_aborted() && Config::get('caching'))
 		{
-			$this->cache->storeCache($chunk);
+			$this->cache->store($chunk);
 		}
 		
 		$this->size = strlen($chunk);

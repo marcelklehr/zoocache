@@ -89,7 +89,7 @@ class Cache
 	/**
 	 * Calls the driver for restoring the cached content.
 	 */
-	function getCache()
+	function get()
 	{
 		$c = self::$driver->get($this->key);
 		
@@ -110,7 +110,7 @@ class Cache
 	/**
 	 * Calls the driver for storing a new snapshot.
 	 */
-	function storeCache($content)
+	function store($content)
 	{
 		self::log('Storing new cache');
 		$c['data'] = $content;
@@ -122,9 +122,9 @@ class Cache
 	}
 	
 	/**
-	 * Reset the snapshot stored under $key
+	 * Reset the snapshot stored under $cache->key
 	 */
-	public function resetCache()
+	public function reset()
 	{
 		// Store nothing for the current key, but make shure it will be determined as invalid
 		return self::$driver->store($this->key, '', 42, 0, crc32(''));
@@ -133,7 +133,7 @@ class Cache
 	/**
 	 * Deletes the whole cache, and returns FALSE on error.
 	 */
-	public function reset()
+	public function resetCache()
 	{
 		return (self::$driver->resetCache() !== FALSE);
 	}

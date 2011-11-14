@@ -22,17 +22,8 @@ Freely licensed under the terms of the **GNU General Public License**.
 5. Finally, Include the `bootstrap.php` file at the top of all files you want to cache. Any output above this include statement will not be cached!
 
 ## API Integration ##
-If you'd like to integrate Zoocache into your application, just...
-
-1. Load the Zoocache API with `include '/path/to/zoocache/api.php';`  
-2. To init the API, run `$zooapi = Zoo\Cache::init($url);` passing the URL of the page you want to access.
-
-Now you can poke around with the cache entry of the passed URL:
-
-* Run `$zooapi->getCache();` to retrieve the current cached snapshot of the URL.
-* Invoke `$zooapi->storeCache($new_contents);` to insert/replace contents, passing a new snapshot as a string.
-* Execute `$zooapi->resetCache();` to force Zoocache to make a new snapshot of this URL on the next request.
-* Run `$zooapi->reset();` to reset all cached snapshots.
+The Zoocache API is a simple programming interface to manipulate the cached contents in another application.
+Find out more about the Zoocache API in the [wiki](http://github.com/marcelklehr/zoocache/wiki/API)
 
 ## Drivers ##
 In Zoocache a driver abstracts the access to a storage medium. The MySQL driver, for example, enables Zoocache to store the cache data in a MySQL database.  
