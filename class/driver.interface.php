@@ -18,9 +18,7 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo;
-
-interface Driver
+interface Zoo_Driver
 {
 	/**
 	 * Install procedure. Leave empty if you don't need it!

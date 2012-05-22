@@ -18,7 +18,5 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo;
-
-class Exception extends \Exception {}
+class Zoo_Exception extends Exception {}
 ?>

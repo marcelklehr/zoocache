@@ -18,9 +18,7 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo;
-
-class Config
+class Zoo_Config
 {
 	private static $directives = array(
 		'caching' => TRUE,

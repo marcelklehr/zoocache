@@ -1,41 +1,39 @@
 <?php
-namespace Zoo;
-
 /**
  * Enable caching?
  */
-Config::set('caching', true);
+Zoo_Config::set('caching', true);
 
 
 /**
  * Seconds until the cached data expires
  */
-Config::set('expire', 300);
+Zoo_Config::set('expire', 11);
 
 /**
  * Storage driver to use
  */
-Config::set('driver', 'file');
+Zoo_Config::set('driver', 'file');
 
 /**
  * Enable plugins
  * Available out of the box: htmlmin
  */
-Config::set('plugins', array(
+Zoo_Config::set('plugins', array(
     'htmlmin'
 ));
 
 /**
  * Set to true, if you want your output to be gzipped
  */
-Config::set('gzip', true);
+Zoo_Config::set('gzip', true);
 
 /**
  * List all files you don't want to be cached using Reguar Expressions.
  * Your cache rule is checked against the whole ugly URL, after eventual rewrites: http://www.example.com/path/to/file.php?maybe=querystring
  * (NOT against: http://www.example.com/my/very/beautiful/uniform_resource_locator/)
  */
-Config::set('blacklist', array(
+Zoo_Config::set('blacklist', array(
     '~test\.php\?nocache$~'
 ));
 
@@ -45,23 +43,23 @@ Config::set('blacklist', array(
  * possible flags: KEY_SCHEME, KEY_DOAMIN, KEY_GETVARS
  * Default value: 0
  */
-Config::set('keygenerator', KEY_GETVARS);
+Zoo_Config::set('keygenerator', KEY_GETVARS);
 
 /**
  * File driver options
  */
-Config::set('file.dir', ZOOCACHE_INC.'/tmp');
+Zoo_Config::set('file.dir', ZOOCACHE_INC.'/tmp');
 
 /**
  * mySQL driver options
  */
-Config::set('mysql.host', 'localhost');
-Config::set('mysql.user', '');
-Config::set('mysql.password', '');
-Config::set('mysql.database', '');
+Zoo_Config::set('mysql.host', 'localhost');
+Zoo_Config::set('mysql.user', '');
+Zoo_Config::set('mysql.password', '');
+Zoo_Config::set('mysql.database', '');
 
 /**
  * Run in debug mode?
  */
-Config::set('debug', true);
+Zoo_Config::set('debug', true);
 ?>

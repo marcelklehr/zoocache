@@ -1,12 +1,11 @@
 <?php
-namespace Zoo;
 define('ZOOCACHE_INC', dirname(__FILE__));
 include ZOOCACHE_INC.'/zoo.php';
 
-Cache::init();
-$driver_name = Config::get('driver');
+Zoo_Cache::init();
+$driver_name = Zoo_Config::get('driver');
 // Install driver
-if(Cache::$driver->install() === FALSE)
+if(Zoo_Cache::$driver->install() === FALSE)
 {
 	die("Hmm, something went wrong during the installation process of the $driver_name driver. Please, check your $driver_name driver settings in 'config.php'!");
 }

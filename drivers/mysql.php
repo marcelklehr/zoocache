@@ -18,16 +18,13 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo\drivers;
-use \Zoo;
-
-class Mysql implements Zoo\Driver
+class Zoo_DriverMysql implements Zoo_Driver
 {
 	public $mysqli;
 	
 	function __construct()
 	{
-		$this->mysqli = new \mysqli(Zoo\Config::get('mysql.host'), Zoo\Config::get('mysql.user'), Zoo\Config::get('mysql.password'), Zoo\Config::get('mysql.database'));
+		$this->mysqli = new mysqli(Zoo_Config::get('mysql.host'), Zoo_Config::get('mysql.user'), Zoo_Config::get('mysql.password'), Zoo_Config::get('mysql.database'));
 	}
 	
 	function install()
@@ -64,7 +61,7 @@ class Mysql implements Zoo\Driver
 			'crc' =>       $row['zoo_crc']
 		);
 		
-		Zoo\Cache::log($this->mysqli->error);
+		Zoo_Cache::log($this->mysqli->error);
 		$result->close();
 		
 		return $return;
@@ -81,25 +78,24 @@ class Mysql implements Zoo\Driver
 		if($num < 1)
 		{
 		  /* innsert new record */
-			$res = $this->mysqli->query("INSERT INTO zoocache (zoo_key,zoo_data,zoo_timestamp,zoo_size,zoo_crc) VALUES ('$key', '$data', '$timestamp', '$size', '$crc')");
+			$return = $this->mysqli->query("INSERT INTO zoocache (zoo_key,zoo_data,zoo_timestamp,zoo_size,zoo_crc) VALUES ('$key', '$data', '$timestamp', '$size', '$crc')");
 		}else{
 		  /* update record */
-			$res = $this->mysqli->query("UPDATE zoocache set zoo_data = '$data', zoo_timestamp = '$timestamp', zoo_size = '$size', zoo_crc = '$crc' WHERE zoo_key = '$key'");
+			$return = $this->mysqli->query("UPDATE zoocache set zoo_data = '$data', zoo_timestamp = '$timestamp', zoo_size = '$size', zoo_crc = '$crc' WHERE zoo_key = '$key'");
 		}
 		
-		Zoo\Cache::log($this->mysqli->error);
-		$res->close();
+		Zoo_Cache::log('Executed sql query');
+		Zoo_Cache::log($this->mysqli->error);
 		
 		return $return;
 	}
 	
 	function resetCache()
 	{
-		$res = $this->mysqli->query("TRUNCATE TABLE zoocache");
+		$this->mysqli->query("TRUNCATE TABLE zoocache");
 		
 		$errno = $this->mysqli->errno;
-		Zoo\Cache::log($this->mysqli->error);
-		$res->close();
+		Zoo_Cache::log($this->mysqli->error);
 		
 		return ($errno === 0);
 	}
@@ -108,5 +104,5 @@ class Mysql implements Zoo\Driver
 /**
  * Register Driver
  */
-Zoo\Cache::$driver = new Mysql;
+Zoo_Cache::$driver = new Zoo_DriverMysql;
 ?>

@@ -18,16 +18,15 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo;
 
-/**
+ /**
  * Flags for createKey()
  */
 define('KEY_DOMAIN', 8);  //1000
 define('KEY_GETVARS', 4); //0100
 define('KEY_SCHEME', 2);  //0010
 
-class Cache
+class Zoo_Cache
 {
 	public $key;
 	public $url;
@@ -36,15 +35,15 @@ class Cache
 	public static $filters;
 	
 	/**
-	 * Init Cache - load driver
+	 * Init Zoo_Cache - load driver
 	 */
 	public static function init($url=null)
 	{
 		// Load driver
         if(!isset(self::$driver))
         {
-            $driver = ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php';
-            if(!file_exists($driver)) throw new Exception('Zoocache driver not found (should be in "drivers/'.Config::get('driver').'.php")');
+            $driver = ZOOCACHE_INC. '/drivers/' . Zoo_Config::get('driver') . '.php';
+            if(!file_exists($driver)) throw new Zoo_Exception('Zoocache driver not found (should be in "drivers/'.Zoo_Config::get('driver').'.php")');
             include $driver;
         }
         
@@ -52,17 +51,17 @@ class Cache
         if(!isset(self::$filters))
         {
             self::$filters = array();
-            $plugins = Config::get('plugins');
+            $plugins = Zoo_Config::get('plugins');
             foreach($plugins as $plugin)
             {
                 $path = ZOOCACHE_INC. '/plugins/' . $plugin . '.php';
-                if(!file_exists($path)) throw new Exception('Zoocache plugin not found (should be in "plugins/'.$plugin.'.php")');
+                if(!file_exists($path)) throw new Zoo_Exception('Zoocache plugin not found (should be in "plugins/'.$plugin.'.php")');
                 include $path;
             }
         }
 		
-		if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.');
-        return new Cache($url);
+		if(!(self::$driver instanceof Zoo_Driver)) throw new Zoo_Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.');
+        return new Zoo_Cache($url);
 	}
 	
 	/**
@@ -169,7 +168,7 @@ class Cache
 	static function createKey($url)
 	{
 	  /* Generate Script identification string */
-		$flags = Config::get('keygenerator');
+		$flags = Zoo_Config::get('keygenerator');
 		
 		// call user-defined function
 		if(is_callable($flags)) {
@@ -208,7 +207,7 @@ class Cache
 	static function log($string)
 	{
 		static $c = 0;
-		if(Config::get('debug'))
+		if(Zoo_Config::get('debug'))
 		{
 			header("X-Zoocache-Log-$c: ".$string, true);
 			$c++;

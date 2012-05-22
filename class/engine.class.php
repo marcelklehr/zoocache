@@ -18,9 +18,7 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo;
-
-class Engine
+class Zoo_Engine
 {
 	public $data;
 	public $size;
@@ -32,24 +30,24 @@ class Engine
 	public function __construct()
 	{
 		header('X-Cache: Zoocache/'.ZOOCACHE_VER);
-        Cache::log('Plugins: '.json_encode(Config::get('plugins')));
+        Zoo_Cache::log('Plugins: '.json_encode(Zoo_Config::get('plugins')));
 		
-		$this->cache = Cache::init();
+		$this->cache = Zoo_Cache::init();
 		
 		// Force caching off when POST occured
 		if (count($_POST) > 0)
-			Config::set('caching', FALSE);
+			Zoo_Config::set('caching', FALSE);
 		
 		// Force caching off when blacklist matches
 		$location = $this->cache->url;
-		$list = Config::get('blacklist');
+		$list = Zoo_Config::get('blacklist');
 		foreach($list as $entry)
 		{
 			if(FALSE == preg_match($entry, $location)) // FALSE: Error; 0: no matches;
 				continue;
 			
-			Cache::log($location.' Matched blacklist entry: "'.$entry.'" Don\'t cache');
-			Config::set('caching', FALSE);
+			Zoo_Cache::log($location.' Matched blacklist entry: "'.$entry.'" Don\'t cache');
+			Zoo_Config::set('caching', FALSE);
 			break;
 		}
 	}
@@ -60,32 +58,32 @@ class Engine
 	static function init()
 	{
 		// Construct engine
-		$engine = new Engine();
+		$engine = new Zoo_Engine();
         
         // gzip compression?
-        if(Config::get('gzip') === TRUE)
+        if(Zoo_Config::get('gzip') === TRUE)
             ob_start('ob_gzhandler');
 		
 		// caching on?
-		if(!Config::get('caching'))
-            return;
-        
-        if(($c = $engine->cache->get()) !== FALSE)
+		if(Zoo_Config::get('caching'))
         {
-          /* Found Cache */
-            $engine->data = $c['data'];
-            $engine->size = $c['size'];
-            $engine->crc = $c['crc'];
-            
-            // valid?
-            if(time() < $c['timestamp'] + Config::get('expire'))
+            if(($c = $engine->cache->get()) !== FALSE)
             {
-                // flush
-                print $engine->flush();
-                exit;
+              /* Found Zoo_Cache */
+                $engine->data = $c['data'];
+                $engine->size = $c['size'];
+                $engine->crc = $c['crc'];
+                
+                // valid?
+                if(time() < $c['timestamp'] + Zoo_Config::get('expire'))
+                {
+                    // flush
+                    print $engine->flush();
+                    exit;
+                }
             }
-        }
-        Cache::log('Cache invalid');
+            Zoo_Cache::log('Cache invalid');
+        }else Zoo_Cache::log('Caching disabled');
 		
 		// start output buffer and define callback
 		ob_start(array($engine, 'recache'));
@@ -98,10 +96,10 @@ class Engine
 	function recache($chunk)
     {
         // Apply filters
-        $chunk = Cache::filter($chunk);
+        $chunk = Zoo_Cache::filter($chunk);
         
 		// Store cache
-		if(!connection_aborted() && Config::get('caching'))
+		if(!connection_aborted() && Zoo_Config::get('caching'))
 		{
 			$this->cache->store($chunk);
 		}
@@ -117,7 +115,7 @@ class Engine
 	 */
 	function flush()
 	{
-		Cache::log('Flushing');
+		Zoo_Cache::log('Flushing');
 		
 		// Build ETag
 		$my_ETag = '"z' . $this->crc .'-'. $this->size . '"';

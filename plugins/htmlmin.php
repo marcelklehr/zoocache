@@ -18,8 +18,7 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo;
-Cache::applyFilter( function($buffer) {
+function zoo_htmlmin($buffer) {
     $search = array(
         '/\>[^\S ]+/s', //strip whitespaces after tags, except space
         '/[^\S ]+\</s', //strip whitespaces before tags, except space
@@ -32,5 +31,6 @@ Cache::applyFilter( function($buffer) {
     );
   $buffer = preg_replace($search, $replace, $buffer);
   return $buffer;
-});
+}
+Zoo_Cache::applyFilter('zoo_htmlmin');
 ?>
