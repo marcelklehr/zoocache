@@ -18,7 +18,7 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo\drivers;
+namespace Zoo\Drivers;
 use \Zoo;
 
 class File implements Zoo\Driver
@@ -97,7 +97,7 @@ class File implements Zoo\Driver
 		return $return;
 	}
 	
-	function resetCache()
+	function reset()
 	{
 		self::emptyDir( Zoo\Config::get('file.dir') );
 	}
@@ -133,9 +133,4 @@ class File implements Zoo\Driver
 		}
 	}
 }
-
-/**
- * Register Driver
- */
-Zoo\Cache::$driver = new File;
 ?>

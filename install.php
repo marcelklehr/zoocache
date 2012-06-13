@@ -1,9 +1,7 @@
 <?php
 namespace Zoo;
-define('ZOOCACHE_INC', dirname(__FILE__));
-include ZOOCACHE_INC.'/zoo.php';
 
-Cache::init();
+Cache::setUp();
 $driver_name = Config::get('driver');
 // Install driver
 if(Cache::$driver->install() === FALSE)

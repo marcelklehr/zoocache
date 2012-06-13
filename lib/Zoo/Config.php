@@ -25,7 +25,7 @@ class Config
 	private static $directives = array(
 		'caching' => TRUE,
 		'expire' => 300,
-        'plugins' => array(),
+        'filters' => array(),
         'gzip' => TRUE,
 		'driver' => 'file',
 		'blacklist' => array(),

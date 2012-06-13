@@ -1,20 +1,20 @@
 <?php
 /**
  * As you can see, using Zoocache on your site is very easy:
- * Just include the bootstrap.php file in the /zoocache directory
+ * It's just one line!
  */
-include 'bootstrap.php';
+Zoo\Engine::init();
 
 /**
  * Let's do something that takes really long, so we can see the difference
  */
-sleep(6);
+sleep(4);
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 	"http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
-<title>Zoocache <?php print ZOOCACHE_VER; ?> - Test page</title>
+<title>Zoocache <?php print Zoo\Cache::VERSION; ?> - Test page</title>
 <style type="text/css">
 body{color:#000000;background-color:#FFFFFF;padding-left:1em;}
 a:link{color:#060;}
@@ -32,6 +32,6 @@ h1 span{color:#050}
 Also try <a href="<?php print $_SERVER['PHP_SELF']; ?>?nocache">?nocache</a>, which is on the caching blacklist. Therefore, when watching that page, you should see the digits change on reload and, by the way, the page should take much longer to load.</p>
 <?php if(Zoo\Config::get('debug')){ ?><p><strong>Zoocache is running in debug mode!</strong><br/>It's recommended to turn off debug mode in a production environment, since debug messages can be read by everybody in the HTTP headers.</p><?php } ?>
 <p></p>
-<p><em>You are running Zoocache/<?php print ZOOCACHE_VER; ?>; driver:<?php print Zoo\Config::get('driver'); ?>; plugins:<?php print json_encode(Zoo\Config::get('plugins')); ?>; debug mode: <?php print (Zoo\Config::get('debug')) ? 'on' : 'off'; ?></em></p>
+<p><em>You are running Zoocache/<?php print Zoo\Cache::VERSION; ?>; driver:<?php print Zoo\Config::get('driver'); ?>; plugins:<?php print json_encode(Zoo\Config::get('plugins')); ?>; debug mode: <?php print (Zoo\Config::get('debug')) ? 'on' : 'off'; ?></em></p>
 </body>
 </html>

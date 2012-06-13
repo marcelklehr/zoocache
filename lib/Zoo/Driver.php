@@ -41,6 +41,6 @@ interface Driver
 	/**
 	 * Should delete all stored cache snapshots and return a boolean FALSE on error.
 	 */
-	public function resetCache();
+	public function reset();
 }
 ?>

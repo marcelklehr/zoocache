@@ -18,7 +18,7 @@
  * @author Marcel Klehr <mklehr@gmx.net>
  * @copyright (c) 2011, Marcel Klehr
  */
-namespace Zoo\drivers;
+namespace Zoo\Drivers;
 use \Zoo;
 
 class Mysql implements Zoo\Driver
@@ -80,7 +80,7 @@ class Mysql implements Zoo\Driver
 		
 		if($num < 1)
 		{
-		  /* innsert new record */
+		  /* insert new record */
 			$res = $this->mysqli->query("INSERT INTO zoocache (zoo_key,zoo_data,zoo_timestamp,zoo_size,zoo_crc) VALUES ('$key', '$data', '$timestamp', '$size', '$crc')");
 		}else{
 		  /* update record */
@@ -93,7 +93,7 @@ class Mysql implements Zoo\Driver
 		return $return;
 	}
 	
-	function resetCache()
+	function reset()
 	{
 		$res = $this->mysqli->query("TRUNCATE TABLE zoocache");
 		
@@ -104,9 +104,4 @@ class Mysql implements Zoo\Driver
 		return ($errno === 0);
 	}
 }
-
-/**
- * Register Driver
- */
-Zoo\Cache::$driver = new Mysql;
 ?>
