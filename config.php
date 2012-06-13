@@ -10,7 +10,7 @@ Config::set('caching', true);
 /**
  * Seconds until the cached data expires
  */
-Config::set('expire', 300);
+Config::set('expire', 20);
 
 /**
  * Storage driver to use
@@ -53,12 +53,18 @@ Config::set('keygenerator', KEY_GETVARS);
 Config::set('file.dir', dirname(__FILE__).'/tmp');
 
 /**
- * mySQL driver options
+ * Mysql driver options
  */
 Config::set('mysql.host', 'localhost');
 Config::set('mysql.user', '');
 Config::set('mysql.password', '');
 Config::set('mysql.database', '');
+
+/**
+ * memcached driver options
+ */
+Config::set('memcached.host', 'localhost');
+Config::set('memcached.port', 11211);
 
 /**
  * Run in debug mode?
