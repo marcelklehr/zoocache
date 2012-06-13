@@ -29,6 +29,8 @@ define('KEY_SCHEME', 2);  //0010
 
 class Cache
 {
+    const VERSION = '0.5.0';
+    
 	public $key;
 	public $url;
 	
@@ -40,28 +42,9 @@ class Cache
 	 */
 	public static function init($url=null)
 	{
-		// Load driver
-        if(!isset(self::$driver))
-        {
-            $driver = ZOOCACHE_INC. '/drivers/' . Config::get('driver') . '.php';
-            if(!file_exists($driver)) throw new Exception('Zoocache driver not found (should be in "drivers/'.Config::get('driver').'.php")');
-            include $driver;
-        }
-        
-        // Load plugins
-        if(!isset(self::$filters))
-        {
-            self::$filters = array();
-            $plugins = Config::get('plugins');
-            foreach($plugins as $plugin)
-            {
-                $path = ZOOCACHE_INC. '/plugins/' . $plugin . '.php';
-                if(!file_exists($path)) throw new Exception('Zoocache plugin not found (should be in "plugins/'.$plugin.'.php")');
-                include $path;
-            }
-        }
+        self::setUp();
 		
-		if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver must be an implementation of interface Zoo\Driver.');
+		if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver '.Config::get('driver').' must implement interface Zoo\Driver.');
         return new Cache($url);
 	}
 	
@@ -82,6 +65,35 @@ class Cache
 		
 		$this->key = self::createKey($this->url);
 	}
+    
+    public static function setUp()
+    {
+        // Load config
+        $config = dirname(__FILE__). '/../../config.php';
+        if(!file_exists($config)) throw new Exception('Zoocache config file not found (should be at "'.$config.'")');
+        include $config;
+        
+        // Load driver
+        if(!isset(self::$driver))
+        {
+            $driver_name = ucwords(Config::get('driver'));
+            $class = '\\Zoo\\Drivers\\'.$driver_name;
+            self::$driver = new $class;
+        }
+        
+        // Load filters
+        if(!isset(self::$filters))
+        {
+            self::$filters = array();
+            $filters = Config::get('filters');
+            foreach($filters as $filter)
+            {
+                $path = dirname(__FILE__). '/Filters/' . ucwords($filter) . '.php';
+                if(!file_exists($path)) throw new Exception('Zoocache filter not found (should be at "'.$path.'")');
+                include $path;
+            }
+        }
+    }
 	
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -133,9 +145,9 @@ class Cache
 	/**
 	 * Deletes the whole cache, and returns FALSE on error.
 	 */
-	public function resetCache()
+	public function resetAll()
 	{
-		return (self::$driver->resetCache() !== FALSE);
+		return (self::$driver->reset() !== FALSE);
 	}
 	
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

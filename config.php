@@ -1,5 +1,5 @@
 <?php
-namespace Zoo;
+use Zoo\Config;
 
 /**
  * Enable caching?
@@ -18,10 +18,10 @@ Config::set('expire', 300);
 Config::set('driver', 'file');
 
 /**
- * Enable plugins
+ * Enable filters
  * Available out of the box: htmlmin
  */
-Config::set('plugins', array(
+Config::set('filters', array(
     'htmlmin'
 ));
 
@@ -50,7 +50,7 @@ Config::set('keygenerator', KEY_GETVARS);
 /**
  * File driver options
  */
-Config::set('file.dir', ZOOCACHE_INC.'/tmp');
+Config::set('file.dir', dirname(__FILE__).'/tmp');
 
 /**
  * mySQL driver options

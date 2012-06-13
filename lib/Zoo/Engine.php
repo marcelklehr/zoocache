@@ -31,8 +31,8 @@ class Engine
 	 */
 	public function __construct()
 	{
-		header('X-Cache: Zoocache/'.ZOOCACHE_VER);
-        Cache::log('Plugins: '.json_encode(Config::get('plugins')));
+		header('X-Cache: Zoocache/'.Cache::VERSION);
+        Cache::log('Plugins: '.join(', ',Config::get('filters')));
 		
 		$this->cache = Cache::init();
 		
