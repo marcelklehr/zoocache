@@ -29,52 +29,26 @@
  */
 namespace Zoo;
 
-/**
- * Flags for createKey()
- */
-define('KEY_DOMAIN', 8);  //1000
-define('KEY_GETVARS', 4); //0100
-define('KEY_SCHEME', 2);  //0010
-
 class Cache
 {
     const VERSION = '0.5.0';
     
 	public $key;
-	public $url;
 	
 	public static $driver;
 	public static $filters;
 	
 	/**
-	 * Init Cache - load driver
-	 */
-	public static function init($url=null)
-	{
-        self::setUp();
-		
-		if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver '.Config::get('driver').' must implement interface Zoo\Driver.');
-        return new Cache($url);
-	}
-	
-	/**
 	 * Construct entity properties
 	 */
-	private function __construct($url=null)
+	private function __construct($key)
 	{
-		$this->url = $url;
-		if($url === null)
-		{
-			$this->url = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
-			$this->url .= $_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME'];
-			$this->url.= (!empty($_SERVER['QUERY_STRING']))
-							? '?'.$_SERVER['QUERY_STRING']
-							: '';
-		}
-		
-		$this->key = self::createKey($this->url);
+		$this->key = $key;
 	}
     
+    /**
+     * Load everythin that's needed to work
+     */
     public static function setUp()
     {
         // Load config
@@ -88,6 +62,7 @@ class Cache
             $driver_name = ucwords(Config::get('driver'));
             $class = '\\Zoo\\Drivers\\'.$driver_name;
             self::$driver = new $class;
+            if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver '.Config::get('driver').' must implement interface Zoo\Driver.');
         }
         
         // Load filters
@@ -103,6 +78,37 @@ class Cache
             }
         }
     }
+    
+    /**
+	 * Access a cache entry
+	 */
+	public static function item($key)
+	{
+        self::setUp();
+        return new Cache($key);
+	}
+    
+    /**
+	 * Cache::retrieve returns the cached item if it's not expired, otherwise it'll execute the callback and store and pass through its return value.
+	 */
+	public static function retrieve($key, $expiresIn, $callback)
+	{
+        $item = Cache::item($key);
+        if(($data = $item->get()) === FALSE) {
+            $data = $callback();
+            $item->store($data, $expiresIn);
+        }
+        return $data;
+	}
+    
+    /**
+	 * Deletes the whole cache, and returns FALSE on error.
+	 */
+	public static function resetAll()
+	{
+        self::setUp();
+		return (self::$driver->reset() !== FALSE);
+	}
 	
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -120,26 +126,16 @@ class Cache
 			return false;
 		}
 		
-		return array(
-			'data' => $c['data'],
-			'size' => $c['size'],
-			'crc' => $c['crc'],
-			'timestamp' => $c['timestamp']
-		);
+		return $c;
 	}
 	
 	/**
 	 * Calls the driver for storing a new snapshot.
 	 */
-	function store($content)
+	function store($content, $expires)
 	{
 		self::log('Storing new cache');
-		$c['data'] = $content;
-		$c['timestamp'] = time();
-		$c['size'] = strlen($content);
-		$c['crc'] = crc32($content);
-		
-		return self::$driver->store($this->key, $c['data'], $c['timestamp'], $c['size'], $c['crc']);
+		return self::$driver->store($this->key, $expires+time(), $content);
 	}
 	
 	/**
@@ -148,80 +144,10 @@ class Cache
 	public function reset()
 	{
 		// Store nothing for the current key, but make shure it will be determined as invalid
-		return self::$driver->store($this->key, '', 42, 0, crc32(''));
-	}
-	
-	/**
-	 * Deletes the whole cache, and returns FALSE on error.
-	 */
-	public function resetAll()
-	{
-		return (self::$driver->reset() !== FALSE);
+		return self::$driver->store($this->key, $timeout=time()-5, '');
 	}
 	
 //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    
-    /**
-	 * Registers a filter
-	 */
-	static function applyFilter($func)
-	{
-		if(!is_callable($func)) return false;
-        self::$filters[] = $func;
-	}
-    
-    
-    /**
-	 * Applies all registered output filters
-	 */
-    static function filter($buffer)
-    {
-        foreach(self::$filters as $filter)
-        {
-            $b = $filter($buffer);
-            if($b !== FALSE) $buffer = $b;
-        }
-        return $buffer;
-    }
-	
-	/**
-	 * Creates storage key with the options
-	 */
-	static function createKey($url)
-	{
-	  /* Generate Script identification string */
-		$flags = Config::get('keygenerator');
-		
-		// call user-defined function
-		if(is_callable($flags)) {
-			return md5(flags($url));
-		}
-		
-		$url = parse_url($url);
-		
-		$key = $url['path'];
-		
-		// check DOMAIN flag
-		if((KEY_DOMAIN & $flags) == KEY_DOMAIN)
-		{
-			$key = $url['host'].$key;
-		}
-		
-		// check GETVARS flag
-		if((KEY_GETVARS & $flags) == KEY_GETVARS)
-		{
-			$key .= '?';
-			$key .= (isset($url['query'])) ? $url['query'] : '';
-		}
-		
-		// check SCHEME flag
-		if((KEY_SCHEME & $flags) == KEY_SCHEME)
-		{
-			$key = $url['scheme'].'://'.$key;
-		}
-		
-		return md5($key);
-	}
 
 	/**
 	 * Outputs every log statement to the HTTP header when in debug mode

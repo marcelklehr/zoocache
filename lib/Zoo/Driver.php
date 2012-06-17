@@ -37,15 +37,17 @@ interface Driver
 	public function install();
 	
 	/**
-	 * Should return an associative array with 4 items on success: array(data, timestamp, size, crc)
+	 * Should return the stored data on success
 	 * and a boolean FALSE on error.
+     *
+     * Should also return FALSE if the $timeout < time() 
 	 */
 	public function get($key);
 	
 	/**
-	 * Should store all 4 vars seperately under $key and return a boolean FALSE on error.
+	 * Should store $data under $key with a the timeout specified in $timeout and return a boolean FALSE on error.
 	 */
-	public function store($key, $data, $timestamp, $size, $crc);
+	public function store($key, $timeout, $data);
 	
 	/**
 	 * Should delete all stored cache snapshots and return a boolean FALSE on error.

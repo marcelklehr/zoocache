@@ -1,9 +1,14 @@
 <?php
 /**
  * As you can see, using Zoocache on your site is very easy:
- * It's just one line!
  */
-Zoo\Engine::init();
+Zoo\Engine::init(Zoo\USE_PATH|Zoo\USE_GETVARS)
+    ->compress()
+    ->expireIn(20)
+    ->setBlacklist(array(
+    '~\?nocache$~'
+    ))
+->run();
 
 /**
  * Let's do something that takes really long, so we can see the difference

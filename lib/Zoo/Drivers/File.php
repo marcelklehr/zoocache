@@ -44,7 +44,7 @@ class File implements Zoo\Driver
 		$file = Zoo\Config::get('file.dir') . '/zoo.'.$key;
 		
 		// Open file
-		if (($fp = @fopen($file, 'rb')) === FALSE)
+		if(($fp = @fopen($file, 'rb')) === FALSE)
 		{
 			Zoo\Cache::log('Couldn\'t open cache file');
 			return FALSE;
@@ -54,26 +54,27 @@ class File implements Zoo\Driver
 		flock($fp, LOCK_SH);
 		
 		Zoo\Cache::log('Reading cache file');
-		
 		$data = file_get_contents($file);
 
 		// Release lock
 		flock($fp, LOCK_UN);
 		fclose($fp);
 		
-		$cache = unserialize($data);
-		
 		Zoo\Cache::log('Parsing cache data');
+        $cache = unserialize($data);
 		
 		if(!is_array($cache))
 			return FALSE;
+        
+        if($cache['timeout'] < time())
+            return FALSE;
 		
-		return $cache;
+		return $cache['data'];
 	}
 	
-	function store($key, $data, $timestamp, $size, $crc)
+	function store($key, $timeout, $data)
 	{
-		$cache = serialize(array('data'=>$data, 'timestamp'=>$timestamp, 'size'=>$size, 'crc'=>$crc));
+		$cache = serialize(array('data'=>$data, 'timeout'=>$timeout));
 		
 		$file = Zoo\Config::get('file.dir') . '/zoo.'.$key;
 		if(file_exists($file))

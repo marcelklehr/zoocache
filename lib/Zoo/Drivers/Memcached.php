@@ -48,17 +48,16 @@ class Memcached implements Zoo\Driver
         return $this->m->get('zoo:'.$key);
 	}
 	
-	function store($key, $data, $timestamp, $size, $crc)
+	function store($key, $timeout, $data)
 	{
-        $data = array('data'=>$data, 'timestamp'=>$timestamp, 'size'=>$size, 'crc'=>$crc);
 		$key = 'zoo:'.$key;
         
         Zoo\Cache::log('Storing item in memcached server');
-        $result = $this->m->replace( $key, $data );
+        $result = $this->m->replace( $key, $data, 0, $timeout );
         Zoo\Cache::log('Replacing item '.($result? 'succeeded' :'failed').'... Trying set');
         if( $result == false )
         {
-            $result = $this->m->set( $key, $data );
+            $result = $this->m->set( $key, $data, 0, $timeout );
             Zoo\Cache::log('Setting item '.($result? 'succeeded' :'failed'));
         }
         return $result;

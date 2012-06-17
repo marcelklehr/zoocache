@@ -29,77 +29,140 @@
  */
 namespace Zoo;
 
+/**
+ * Flags for createKey()
+ */
+define('Zoo\\USE_DOMAIN',  0x10000);
+define('Zoo\\USE_PATH',    0x01000);
+define('Zoo\\USE_GETVARS', 0x00100);
+define('Zoo\\USE_SCHEME',  0x00010);
+
 class Engine
 {
 	public $data;
 	public $size;
 	public $crc;
+    
+    public $cachingOn = TRUE;
+    public $compressionOn = FALSE;
+    public $expires = 20;
+    public $blacklist = array();
 	
 	/**
 	 * Takes some edits to the options
 	 */
-	public function __construct()
+	public function __construct($key_gen)
 	{
 		header('X-Cache: Zoocache/'.Cache::VERSION);
         Cache::log('Plugins: '.join(', ',Config::get('filters')));
 		
-		$this->cache = Cache::init();
+		$this->url = (@$_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://';
+		$this->url .= $_SERVER['SERVER_NAME'].$_SERVER['SCRIPT_NAME'];
+		$this->url.= (!empty($_SERVER['QUERY_STRING']))
+						? '?'.$_SERVER['QUERY_STRING']
+						: '';
 		
-		// Force caching off when POST occured
-		if (count($_POST) > 0)
-			Config::set('caching', FALSE);
-		
-		// Force caching off when blacklist matches
-		$location = $this->cache->url;
-		$list = Config::get('blacklist');
-		foreach($list as $entry)
-		{
-			if(FALSE == preg_match($entry, $location)) // FALSE: Error; 0: no matches;
-				continue;
-			
-			Cache::log($location.' Matched blacklist entry: "'.$entry.'" Don\'t cache');
-			Config::set('caching', FALSE);
-			break;
-		}
+		$this->key = self::createKey($this->url, $key_gen);
+		$this->cache = Cache::item($this->key);
 	}
 	
-	/**
-	 * Initializes the caching process, loads the driver and coordinates everything
-	 */
-	static function init()
+	/* Set flags to define which variables should be used for creating the storage key.
+     * Instead, you can also pass a callback to generate the key out of the URL passed to it.
+     * possible flags: KEY_SCHEME, KEY_DOAMIN, KEY_GETVARS
+     * Default value: 0
+     */
+	static function init($key_generator)
 	{
 		// Construct engine
-		$engine = new Engine();
+		return new Engine($key_generator);
+    }
+    
+    function compress()
+    {
+        $this->copmressionOn = TRUE;
+        return $this;
+    }
+    
+    function expireIn($secs)
+    {
+        $this->expires = $secs;
+        return $this;
+    }
+    
+    function filter($func)
+	{
+		if(!is_callable($func)) return false;
+        $this->filters[] = $func;
+	}
+    
+    /**
+     * List all files you don't want to be cached using Reguar Expressions.
+     * Your cache rule is checked against the whole ugly URL, after eventual rewrites: http://www.example.com/path/to/file.php?maybe=querystring
+     * (NOT against: http://www.example.com/my/very/beautiful/uniform_resource_locator/)
+     */
+    function setBlacklist(array $list)
+    {
+        $this->blacklist = $list;
+        return $this;
+    }
+    
+    /**
+     * Run the caching engine
+     */
+    function run()
+    {
+        // Force caching off when POST occured
+		if (count($_POST) > 0)
+			$this->cachingOn = FALSE;
+		
+		// Force caching off when blacklist matches
+		foreach($this->blacklist as $entry)
+		{
+			if(FALSE == preg_match($entry, $this->url)) // FALSE: Error; 0: no matches;
+				continue;
+			
+			Cache::log($this->url.' Matched blacklist entry: "'.$entry.'" Don\'t cache.');
+			$this->cachingOn = FALSE;
+			break;
+		}
         
         // gzip compression?
-        if(Config::get('gzip') === TRUE)
+        if($this->compressionOn === TRUE)
             ob_start('ob_gzhandler');
-		
-		// caching on?
-		if(!Config::get('caching'))
-            return;
         
-        if(($c = $engine->cache->get()) !== FALSE)
+        if($this->cachingOn)
         {
-          /* Found Cache */
-            $engine->data = $c['data'];
-            $engine->size = $c['size'];
-            $engine->crc = $c['crc'];
-            
-            // valid?
-            if(time() < $c['timestamp'] + Config::get('expire'))
+            if(($c = $this->cache->get()) !== FALSE)
             {
+              /* Found Cache */
+                $this->data = $c['data'];
+                $this->size = $c['size'];
+                $this->crc = $c['crc'];
+                
                 // flush
-                print $engine->flush();
+                print $this->flush();
                 exit;
             }
+            Cache::log('Cache invalid');
         }
-        Cache::log('Cache invalid');
 		
 		// start output buffer and define callback
-		ob_start(array($engine, 'recache'));
+		ob_start(array($this, 'recache'));
 		ob_implicit_flush(0);
 	}
+    
+    /**
+     * Apply all registered filters
+     */
+    function applyFilters($buffer)
+    {
+        foreach($this->filters as $filter)
+        {
+            $b = $filter($buffer);
+            if($b !== FALSE) $buffer = $b;
+        }
+        return $buffer;
+    }
 	
     /**
      * Process the buffered data
@@ -107,17 +170,22 @@ class Engine
 	function recache($chunk)
     {
         // Apply filters
-        $chunk = Cache::filter($chunk);
+        $chunk = $this->applyFilters($chunk);
         
-		// Store cache
-		if(!connection_aborted() && Config::get('caching'))
-		{
-			$this->cache->store($chunk);
-		}
-		
-		$this->size = strlen($chunk);
+        $this->size = strlen($chunk);
 		$this->crc = crc32($chunk);
 		$this->data = $chunk;
+        
+		// Store cache
+		if(!connection_aborted() && $this->cachingOn)
+		{
+			$this->cache->store(array(
+                'data' => $this->data,
+                'size' => $this->size,
+                'crc' => $this->crc
+            ), $this->expires);
+		}
+        
 		return $this->flush();
 	}
 	
@@ -151,6 +219,52 @@ class Engine
             // Something modified - return cached data
 			return $this->data;
 		}
+	}
+    
+    /**
+	 * Creates storage key with the options
+	 */
+	public static function createKey($url, $key_gen)
+	{
+	  /* Generate Script identification string */
+		
+		// call user-defined function
+		if(is_callable($key_gen)) {
+			return md5($key_gen($url));
+		}
+		
+        $flags = $key_gen;
+        
+		$url = parse_url($url);
+		
+		$key = '';
+		
+		// check DOMAIN flag
+		if((USE_DOMAIN & $flags) == USE_DOMAIN)
+		{
+			$key .= $url['host'];
+		}
+        
+        // check PATH flag
+		if((USE_PATH & $flags) == USE_PATH)
+		{
+			$key .= $url['path'];
+		}
+		
+		// check GETVARS flag
+		if((USE_GETVARS & $flags) == USE_GETVARS)
+		{
+			$key .= '?';
+			$key .= (isset($url['query'])) ? $url['query'] : '';
+		}
+		
+		// check SCHEME flag
+		if((USE_SCHEME & $flags) == USE_SCHEME)
+		{
+			$key = $url['scheme'].'://'.$key;
+		}
+		
+		return md5($key);
 	}
 }
 ?>
