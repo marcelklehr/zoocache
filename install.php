@@ -1,6 +1,6 @@
 <?php
 namespace Zoo;
-
+include dirname(__FILE__).'/../../autoload.php';
 Cache::setUp();
 $driver_name = Config::get('driver');
 // Install driver
