@@ -91,7 +91,7 @@ class Cache
     /**
 	 * Cache::retrieve returns the cached item if it's not expired, otherwise it'll execute the callback and store and pass through its return value.
 	 */
-	public static function retrieve($key, $expiresIn, $callback)
+	public static function retrieve($key, $callback, $expiresIn)
 	{
         $item = Cache::item($key);
         if(($data = $item->get()) === FALSE) {
