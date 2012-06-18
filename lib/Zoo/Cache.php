@@ -64,19 +64,6 @@ class Cache
             self::$driver = new $class;
             if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver '.Config::get('driver').' must implement interface Zoo\Driver.');
         }
-        
-        // Load filters
-        if(!isset(self::$filters))
-        {
-            self::$filters = array();
-            $filters = Config::get('filters');
-            foreach($filters as $filter)
-            {
-                $path = dirname(__FILE__). '/Filters/' . ucwords($filter) . '.php';
-                if(!file_exists($path)) throw new Exception('Zoocache filter not found (should be at "'.$path.'")');
-                include $path;
-            }
-        }
     }
     
     /**
