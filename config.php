@@ -4,7 +4,7 @@ use Zoo\Config;
 /**
  * Storage driver to use
  */
-Config::set('driver', 'file');
+Config::set('driver', 'File');
 
 /**
  * File driver options
@@ -27,6 +27,7 @@ Config::set('memcached.port', 11211);
 
 /**
  * Run in debug mode?
+ * When enabled, all actions will be logged to the HTTP response header, but in a production environment it's recommended to turn it off.
  */
 Config::set('debug', true);
 ?>

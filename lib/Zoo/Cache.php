@@ -59,7 +59,7 @@ class Cache
         // Load driver
         if(!isset(self::$driver))
         {
-            $driver_name = ucwords(Config::get('driver'));
+            $driver_name = Config::get('driver');
             $class = '\\Zoo\\Drivers\\'.$driver_name;
             self::$driver = new $class;
             if(!(self::$driver instanceof Driver)) throw new Exception('Registered Zoocache driver '.Config::get('driver').' must implement interface Zoo\Driver.');
