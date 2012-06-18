@@ -2,9 +2,9 @@
     "name": "zoocache/zoocache",
     "type": "library",
     "description": "Simple output caching for your app.",
-    "keywords": ["abc", "cache", "output", "buffer", "caching", ""],
+    "keywords": ["abc", "cache", "output", "buffer", "caching", "mysql", "memcached", "memcached"],
     "homepage": "http://github.com/marcelklehr/zoocache",
-    "license": "GPL",
+    "license": "MIT",
     "authors": [
         {
             "name": "Marcel Klehr",
