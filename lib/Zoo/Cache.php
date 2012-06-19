@@ -31,7 +31,7 @@ namespace Zoo;
 
 class Cache
 {
-    const VERSION = '0.6.0';
+    const VERSION = '0.6.2';
     
 	public $key;
 	
